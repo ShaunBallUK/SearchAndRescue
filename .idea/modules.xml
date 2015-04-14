@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/../AutoComplete/AutoComplete.iml" filepath="$PROJECT_DIR$/../AutoComplete/AutoComplete.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../RSyntaxTextArea/RSyntaxTextArea.iml" filepath="$PROJECT_DIR$/../RSyntaxTextArea/RSyntaxTextArea.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SearchAndRescue.iml" filepath="$PROJECT_DIR$/SearchAndRescue.iml" />
+    </modules>
+  </component>
+</project>
