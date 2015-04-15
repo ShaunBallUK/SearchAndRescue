@@ -19,7 +19,7 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 
 
 /**
- * Created by sball on 14/04/2015.
+ * Author provided demo.
  */
 public class AutoCompleteDemo extends JFrame
 {

@@ -1,24 +1,20 @@
 package org.sball.sar;
 
-import java.awt.BorderLayout;
+import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.ComboBoxModel;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.event.ListDataListener;
+import javax.swing.text.JTextComponent;
 
-import org.fife.ui.autocomplete.Completion;
-import org.fife.ui.autocomplete.CompletionProvider;
-import org.fife.ui.autocomplete.DefaultCompletionProvider;
-import org.fife.ui.autocomplete.ShorthandCompletion;
-
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
+import org.fife.ui.autocomplete.*;
 
 
 /**
@@ -31,46 +27,26 @@ public class Demo extends JFrame
     {
         JPanel contentPane = new JPanel(new BorderLayout(4, 4));
 
-//        final JTextField textField = new JSearchTextField();
-//        textField.setPreferredSize(new Dimension(160, 20));
-//        Box hbox = Box.createHorizontalBox();
-//        hbox.add(new JButton("Button"));
-//        hbox.add(Box.createHorizontalStrut(4));
-//        hbox.add(textField);
-//        Box vbox = Box.createVerticalBox();
-//        vbox.add(hbox);
-//        vbox.add(Box.createHorizontalGlue());
-//        contentPane.add(vbox);
-//
-//        final JPopupMenu menu = new JPopupMenu();
-//
-//        textField.addFocusListener(new FocusListener()
-//        {
-//            @Override
-//            public void focusGained(FocusEvent e)
-//            {
-//                menu.show(textField, textField.getX(), textField.getY());
-//            }
-//
-//            @Override
-//            public void focusLost(FocusEvent e)
-//            {
-//                menu.setVisible(false);
-//            }
-//        });
+        final JTextField textField = new JSearchTextField();
+        textField.setPreferredSize(new Dimension(160, 20));
+        Box hbox = Box.createHorizontalBox();
+        hbox.add(new JButton("Button"));
+        hbox.add(Box.createHorizontalStrut(4));
+        hbox.add(textField);
+        Box vbox = Box.createVerticalBox();
+        vbox.add(hbox);
+        vbox.add(Box.createHorizontalGlue());
+        contentPane.add(vbox);
 
+        CompletionProvider completionProvider = createCompletionProvider();
 
+        final AutoCompletion autoCompletion = new AutoCompletion(completionProvider);
+        autoCompletion.setAutoCompleteEnabled(true);
+        autoCompletion.setAutoCompleteSingleChoices(false);
+        autoCompletion.setAutoActivationEnabled(true);
+        autoCompletion.setAutoActivationDelay(100);
 
-
-//        CompletionProvider completionProvider = createCompletionProvider();
-//
-//        final AutoCompletion autoCompletion = new AutoCompletion(completionProvider);
-//        autoCompletion.setAutoCompleteEnabled(true);
-//        autoCompletion.setAutoCompleteSingleChoices(false);
-//        autoCompletion.setAutoActivationEnabled(true);
-//        autoCompletion.setAutoActivationDelay(100);
-//
-//        autoCompletion.install(textField);
+        autoCompletion.install(textField);
 
         setContentPane(contentPane);
         setTitle("Demo");
@@ -80,16 +56,59 @@ public class Demo extends JFrame
     }
 
 
-
     private CompletionProvider createCompletionProvider()
     {
-        DefaultCompletionProvider defaultCompletionProvider = new DefaultCompletionProvider();
+        DefaultCompletionProvider defaultCompletionProvider = new DefaultCompletionProvider()
+        {
+            /**
+             * Additionally include whitespace in autocompletion text.
+             * <br>
+             * {@inheritDoc}
+             */
+            @Override
+            protected boolean isValidChar(char ch)
+            {
+                return Character.isWhitespace(ch) || super.isValidChar(ch);
+            }
+
+
+            /**
+             * {@inheritDoc}
+             */
+            @Override
+            protected List<Completion> getCompletionsImpl(JTextComponent comp)
+            {
+                List<Completion> completionList = super.getCompletionsImpl(comp);
+                List<Completion> filteredCompletions = new ArrayList<>(completionList.size());
+
+                // Remove duplicates with the same replacement text
+                for (Completion completion : completionList)
+                {
+                    final String replacement = completion.getReplacementText();
+                    if (!CollectionUtils.exists(filteredCompletions, new Predicate<Completion>()
+                    {
+                        @Override
+                        public boolean evaluate(Completion completion)
+                        {
+                            return completion.getReplacementText().equalsIgnoreCase(replacement);
+                        }
+                    }))
+                    {
+                        filteredCompletions.add(completion);
+                    }
+                }
+
+                return filteredCompletions;
+            }
+        };
+
+        // Autocomplete for any letter with using hotkey
+        defaultCompletionProvider.setAutoActivationRules(true, null);
 
         defaultCompletionProvider.addCompletions(getCompletions(defaultCompletionProvider));
 
         return defaultCompletionProvider;
     }
-
 
 
     private List<Completion> getCompletions(CompletionProvider provider)
@@ -116,6 +135,8 @@ public class Demo extends JFrame
         map.put("3D Volume Import", importVolume3D);
         map.put("Import 3D Volumes", importVolume3D);
 
+
+
         List<Completion> completions = new ArrayList<>(map.size());
 
         for (Map.Entry<String, String> entry : map.entrySet())
@@ -126,7 +147,16 @@ public class Demo extends JFrame
         return completions;
     }
 
+    public static Map<String, String> combinations(String root, String replacement)
+    {
+        String[] split = root.split(" ");
+        Map<String , String> map = new HashMap<>(split.length);
 
+        //TODO
+
+        return map;
+
+    }
 
     public static void main(String[] args)
     {
